@@ -49,7 +49,7 @@ end try
 
 on getAvailableFilename(folderAlias)
     set found to false
-    set fileCount to 0
+    set fileCount to 1
     set appendix to ""
 
     repeat while found is false
