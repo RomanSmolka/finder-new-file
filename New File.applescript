@@ -36,11 +36,15 @@ try
     end tell
     
 on error theError number errorNumber
-    display dialog "Error: " & (errorNumber as text) & return & return & theError ¬
-    buttons {"OK"} ¬
-    default button 1 ¬
-    with icon stop ¬
-    with title "New File Applet"
+    if errorNumber is 1002 then
+        displayAccessibilityPromptDialog()
+    else
+        display dialog "Error: " & (errorNumber as text) & return & return & theError ¬
+            buttons {"OK"} ¬
+            default button 1 ¬
+            with icon stop ¬
+            with title "New File Applet"
+    end if
 end try
 
 on getAvailableFilename(folderAlias)
@@ -58,5 +62,24 @@ on getAvailableFilename(folderAlias)
             end if
         end tell
     end repeat
+
+end getAvailableFilename
+
+on displayAccessibilityPromptDialog()
+
+    set theResponse to display dialog "Please allow the New File app in:" & return & return & "System Preferences ▶ Security & Privacy ▶ Privacy ▶ Accessibility" ¬
+        buttons {"Open Privacy Settings", "OK"} ¬
+        default button 1 ¬
+        with icon caution ¬
+        with title "New File Applet"
+
+    if (button returned of theResponse is "Open Privacy Settings") then
+        tell application "System Preferences"
+            activate
+            set the current pane to pane id "com.apple.preference.security"
+            get the name of every anchor of pane id "com.apple.preference.security"
+            reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+        end tell
+    end if
 
 end getAvailableFilename
