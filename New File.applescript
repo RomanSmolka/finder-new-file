@@ -54,11 +54,11 @@ on getAvailableFilename(folderAlias)
 
     repeat while found is false
         tell application "Finder"
-            if exists file (folderAlias as text & "New File" & appendix) then
+            if exists file (folderAlias as text & "untitled file" & appendix) then
                 set fileCount to (fileCount + 1)
                 set appendix to (" " & fileCount as string)
             else
-                return "New File" & appendix
+                return "untitled file" & appendix
             end if
         end tell
     end repeat
