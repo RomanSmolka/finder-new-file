@@ -36,13 +36,14 @@ try
     end tell
     
 on error theError number errorNumber
+    tell me to activate
     if errorNumber is 1002 then
         displayAccessibilityPromptDialog()
     else
-        display dialog "Error: " & (errorNumber as text) & return & return & theError Â¬
-            buttons {"OK"} Â¬
-            default button 1 Â¬
-            with icon stop Â¬
+        display dialog "Error: " & (errorNumber as text) & return & return & theError Â
+            buttons {"OK"} Â
+            default button 1 Â
+            with icon stop Â
             with title "New File Applet"
     end if
 end try
@@ -66,20 +67,46 @@ on getAvailableFilename(folderAlias)
 end getAvailableFilename
 
 on displayAccessibilityPromptDialog()
+    set systemVersion to system version of (system info)
 
-    set theResponse to display dialog "Please allow the New File app in:" & return & return & "System Preferences â–¶ Security & Privacy â–¶ Privacy â–¶ Accessibility" Â¬
-        buttons {"Open Privacy Settings", "OK"} Â¬
-        default button 1 Â¬
-        with icon caution Â¬
+    considering numeric strings
+        set hasNewSettingsApp to systemVersion ³ "11"
+    end considering
+
+    if hasNewSettingsApp
+        set accessibilitySettingPath to "System Settings ? Privacy & Security ? Accessibility"
+    else
+        set accessibilitySettingPath to "System Preferences ? Security & Privacy ? Privacy ? Accessibility"
+    end if
+
+    set theResponse to display dialog "Please allow the New File app in:" & return & return & accessibilitySettingPath Â
+        buttons {"Open Privacy Settings", "OK"} Â
+        default button 1 Â
+        with icon caution Â
         with title "New File Applet"
 
     if (button returned of theResponse is "Open Privacy Settings") then
-        tell application "System Preferences"
-            activate
-            set the current pane to pane id "com.apple.preference.security"
-            get the name of every anchor of pane id "com.apple.preference.security"
-            reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-        end tell
+        if hasNewSettingsApp then
+            set securityPaneId to "com.apple.settings.PrivacySecurity.extension"
+            tell application "System Settings"
+                activate
+                delay 0.5
+                set the current pane to pane id securityPaneId
+                get the name of every anchor of pane id securityPaneId
+                delay 0.5
+                reveal anchor "Privacy_Accessibility" of pane id securityPaneId
+            end tell
+        else
+            set securityPaneId to "com.apple.preference.security"
+            tell application "System Preferences"
+                activate
+                delay 0.5
+                set the current pane to pane id securityPaneId
+                get the name of every anchor of pane id securityPaneId
+                delay 0.5
+                reveal anchor "Privacy_Accessibility" of pane id securityPaneId
+            end tell
+        end if
     end if
 
-end getAvailableFilename
+end displayAccessibilityPromptDialog
